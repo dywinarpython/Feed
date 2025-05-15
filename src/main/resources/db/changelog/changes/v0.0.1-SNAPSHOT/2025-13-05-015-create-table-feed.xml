@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="2025-13-05-015-create-table-feed.xml" author="Dywinar">
+        <createTable tableName="feed">
+            <column name="id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint"/>
+            <column name="name_post" type="varchar(255))"/>
+            <column name="create_time" type="timestamp(6)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="feed" baseColumnNames="user_id" constraintName="feed_user_id" referencedTableName="users_app"
+                                 referencedColumnNames="id"/>
+        <addUniqueConstraint
+                tableName="feed"
+                columnNames="user_id, name_post"
+                constraintName="feed_unique"/>
+    </changeSet>
+</databaseChangeLog>

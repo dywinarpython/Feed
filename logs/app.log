@@ -1,0 +1,48 @@
+2025-05-15T18:48:36.547+03:00  INFO 16160 --- [NewsFeeds] [main] c.feeds.NewsFeeds.NewsFeedsApplication   : Starting NewsFeedsApplication using Java 21.0.5 with PID 16160 (C:\Users\Кирилл\IdeaProjects\NewsFeeds\target\classes started by Кирилл in C:\Users\Кирилл\IdeaProjects\NewsFeeds)
+2025-05-15T18:48:36.551+03:00  INFO 16160 --- [NewsFeeds] [main] c.feeds.NewsFeeds.NewsFeedsApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-05-15T18:48:38.306+03:00  INFO 16160 --- [NewsFeeds] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-05-15T18:48:38.309+03:00  INFO 16160 --- [NewsFeeds] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-15T18:48:38.520+03:00  INFO 16160 --- [NewsFeeds] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 188 ms. Found 1 JPA repository interface.
+2025-05-15T18:48:40.032+03:00  INFO 16160 --- [NewsFeeds] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8444 (https)
+2025-05-15T18:48:40.076+03:00  INFO 16160 --- [NewsFeeds] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-15T18:48:40.076+03:00  INFO 16160 --- [NewsFeeds] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.40]
+2025-05-15T18:48:40.196+03:00  INFO 16160 --- [NewsFeeds] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-15T18:48:40.197+03:00  INFO 16160 --- [NewsFeeds] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3560 ms
+2025-05-15T18:48:40.490+03:00  INFO 16160 --- [NewsFeeds] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-15T18:48:40.754+03:00  INFO 16160 --- [NewsFeeds] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1f916219
+2025-05-15T18:48:40.757+03:00  INFO 16160 --- [NewsFeeds] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-15T18:48:41.062+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.database                       : Set default schema name to public
+2025-05-15T18:48:41.999+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-05-15T18:48:42.068+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.ui                             : Database is up to date, no changesets to execute
+2025-05-15T18:48:42.072+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-05-15T18:48:42.093+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : UPDATE SUMMARY
+2025-05-15T18:48:42.094+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : Run:                          0
+2025-05-15T18:48:42.094+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : Previously run:               1
+2025-05-15T18:48:42.094+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : Filtered out:                 0
+2025-05-15T18:48:42.094+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : -------------------------------
+2025-05-15T18:48:42.094+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : Total change sets:            1
+2025-05-15T18:48:42.096+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.util                           : Update summary generated
+2025-05-15T18:48:42.098+03:00  INFO 16160 --- [NewsFeeds] [main] liquibase.command                        : Command execution complete
+2025-05-15T18:48:42.280+03:00  INFO 16160 --- [NewsFeeds] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-15T18:48:42.404+03:00  INFO 16160 --- [NewsFeeds] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.13.Final
+2025-05-15T18:48:42.450+03:00  INFO 16160 --- [NewsFeeds] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-15T18:48:42.926+03:00  INFO 16160 --- [NewsFeeds] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-15T18:48:43.110+03:00  INFO 16160 --- [NewsFeeds] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.9
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-15T18:48:44.372+03:00  INFO 16160 --- [NewsFeeds] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-15T18:48:44.425+03:00  INFO 16160 --- [NewsFeeds] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-15T18:48:44.930+03:00  INFO 16160 --- [NewsFeeds] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-15T18:48:48.023+03:00  INFO 16160 --- [NewsFeeds] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8444], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\Кирилл\.keystore] using alias [tomcat] with trust store [null]
+2025-05-15T18:48:48.062+03:00  INFO 16160 --- [NewsFeeds] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8444 (https) with context path '/'
+2025-05-15T18:48:48.082+03:00  INFO 16160 --- [NewsFeeds] [main] c.feeds.NewsFeeds.NewsFeedsApplication   : Started NewsFeedsApplication in 12.566 seconds (process running for 13.629)
+2025-05-15T18:50:41.755+03:00  INFO 16160 --- [NewsFeeds] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-15T18:50:41.769+03:00  INFO 16160 --- [NewsFeeds] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-15T18:50:41.789+03:00  INFO 16160 --- [NewsFeeds] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-15T18:50:41.792+03:00  INFO 16160 --- [NewsFeeds] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-15T18:50:41.803+03:00  INFO 16160 --- [NewsFeeds] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
