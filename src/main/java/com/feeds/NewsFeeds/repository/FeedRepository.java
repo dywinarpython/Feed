@@ -19,8 +19,17 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
                           where u.nickname = :nickname
            """, nativeQuery = true
     )
-    @Cacheable(value = "FRIEND_LIST_NICKNAME", key = "#nickname")
     Long[] getFriends(@Param("nickname") String  nickname);
+
+    @Query(
+            value = """
+                 SELECT followers_id
+                          FROM followers f
+                          JOIN community c ON f.community_id = c.id
+                          where c.nickname = :nickname
+           """, nativeQuery = true
+    )
+    Long[] getFollowers(@Param("nickname") String  nickname);
 
 
     @Query("SELECT  new com.feeds.NewsFeeds.DTO.Feed.FeedDTO(f.userId, f.namePost) FROM Feed f WHERE f.userId = :id ORDER BY f.createTime DESC")

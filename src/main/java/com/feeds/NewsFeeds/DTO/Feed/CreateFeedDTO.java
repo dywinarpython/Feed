@@ -17,5 +17,7 @@ public class CreateFeedDTO {
     @NotNull
     private String namePost;
     @NotNull
-    private String author;
+    // 0 - User
+    // 1 - Community
+    private Integer idAuthor;
 }

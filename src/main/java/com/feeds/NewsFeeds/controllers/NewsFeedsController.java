@@ -23,7 +23,7 @@ public class NewsFeedsController {
 
     @PostMapping
     public ResponseEntity<String> createFeed(@Valid @RequestBody CreateFeedDTO createFeedDTO, BindingResult result) throws ValidationException {
-        feedService.createFeedForAllFriendsOrFolowers(createFeedDTO, result);
+        feedService.createFeedForAllFriendsOrFollowers(createFeedDTO, result);
         return ResponseEntity.ok("Лента для пользователь обновлена");
     }
 }

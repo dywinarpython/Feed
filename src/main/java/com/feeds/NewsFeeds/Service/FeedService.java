@@ -35,28 +35,16 @@ public class FeedService {
 
 
     @Transactional
-    public List<FeedDTO> createFeedForAllFriendsOrFolowers(CreateFeedDTO createFeedDTO, BindingResult bindingResult) throws ValidationException {
+    public void createFeedForAllFriendsOrFollowers(CreateFeedDTO createFeedDTO, BindingResult bindingResult) throws ValidationException {
         if (bindingResult.hasErrors()) {
             log.error(bindingResult.getAllErrors().toString());
             throw new ValidationException("Ошибка валидации данных");
         }
-        Long[] idFriends = feedRepository.getFriends(createFeedDTO.getNickname());
-        List<Feed> feedList = new ArrayList<>();
-        List<FeedDTO> feedDTOList = new ArrayList<>();
-        Cache cache = cacheManager.getCache("LIST_FEED_USER");
-        if (cache == null){
-            throw new RuntimeException("Кеш не доступен");
+        switch (createFeedDTO.getIdAuthor()){
+            case 0 -> addNewFeedFriends(createFeedDTO);
+            case 1 -> addNewFeedFollowers(createFeedDTO);
+            default -> throw new ValidationException("Некоректны данные, а именно IdAuthor");
         }
-        for(Long id: idFriends){
-            Feed feed = new Feed();
-            feed.setNamePost(createFeedDTO.getNamePost());
-            feed.setUserId(id);
-            feedList.add(feed);
-            feedRepository.save(feed);
-            pushCache(id, cache);
-            feedDTOList.add(new FeedDTO(id, createFeedDTO.getNamePost()));
-        }
-        return feedDTOList;
     }
 
     public void pushCache(Long id, Cache cache) {
@@ -74,5 +62,33 @@ public class FeedService {
         }
     }
 
+    public void addNewFeedFriends(CreateFeedDTO createFeedDTO){
+        Long[] idFriends = feedRepository.getFriends(createFeedDTO.getNickname());
+        Cache cache = cacheManager.getCache("LIST_FEED_USER");
+        if (cache == null){
+            throw new RuntimeException("Кеш не доступен");
+        }
+        for(Long id: idFriends){
+            Feed feed = new Feed();
+            feed.setNamePost(createFeedDTO.getNamePost());
+            feed.setUserId(id);
+            feedRepository.save(feed);
+            pushCache(id, cache);
+        }
+    }
 
+    public void addNewFeedFollowers(CreateFeedDTO createFeedDTO){
+        Long[] idFriends = feedRepository.getFollowers(createFeedDTO.getNickname());
+        Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
+        if (cache == null){
+            throw new RuntimeException("Кеш не доступен");
+        }
+        for(Long id: idFriends){
+            Feed feed = new Feed();
+            feed.setNamePost(createFeedDTO.getNamePost());
+            feed.setUserId(id);
+            feedRepository.save(feed);
+            pushCache(id, cache);
+        }
+    }
 }

@@ -25,6 +25,9 @@ public class RedisConfig {
         redisCacheConfigurationMap.put(
                 "LIST_FEED_USER", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)).disableCachingNullValues().serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new Jackson2JsonRedisSerializer<>(ListFeedDTO.class)))
         );
+        redisCacheConfigurationMap.put(
+                "LIST_FEED_FOLLOWERS", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)).disableCachingNullValues().serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new Jackson2JsonRedisSerializer<>(ListFeedDTO.class)))
+        );
         return RedisCacheManager.builder(redisConnectionFactory).withInitialCacheConfigurations(redisCacheConfigurationMap)
                 .build();
     }
