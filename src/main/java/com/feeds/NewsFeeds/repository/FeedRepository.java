@@ -2,8 +2,8 @@ package com.feeds.NewsFeeds.repository;
 
 import com.feeds.NewsFeeds.DTO.Feed.FeedDTO;
 import com.feeds.NewsFeeds.entity.Feed;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,13 +13,64 @@ import java.util.List;
 public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query(
             value = """
-                 SELECT friend_id
+                 SELECT f.friend_id
                           FROM friends f
                           JOIN users_app u ON f.user_id = u.id
+                          left  join feed f2 on f.friend_id  = f2.user_id
                           where u.nickname = :nickname
            """, nativeQuery = true
     )
-    Long[] getFriends(@Param("nickname") String  nickname);
+    Long[] getFriendsForCreate(@Param("nickname") String  nickname);
+
+
+
+    @Modifying
+    @Query(
+            value = """
+                 DELETE FROM feed
+                 WHERE id in(
+                          SELECT f.id
+                          FROM feed f
+                          JOIN friends f2   ON f.user_id = f2.friend_id
+                          join users_app ua on f2.user_id = ua.id
+                          where ua.nickname = :nickname)
+           """, nativeQuery = true
+    )
+    void delFriendFeed(@Param("nickname") String  nickname);
+
+    @Modifying
+    @Query(value = """
+    DELETE FROM feed
+    WHERE id IN (
+        select f.id
+         from feed f
+         join friends f2 ON f.user_id = f2.friend_id
+         join posts_user_app pua on pua.users_app_id = f2.user_id
+            WHERE
+                  ((f2.user_id = (SELECT u.id FROM users_app u WHERE u.nickname = :nickname)
+                  and f2.friend_id = (SELECT u2.id FROM users_app u2 WHERE u2.nickname = :nickname2))
+                  or
+                  (f2.friend_id = (SELECT u3.id FROM users_app u3 WHERE u3.nickname = :nickname)
+                  and f2.user_id = (SELECT u4.id FROM users_app u4 WHERE u4.nickname = :nickname2)))
+                  and pua.name = f.name_post)
+    
+""", nativeQuery = true)
+    void delFriendFeedAll(
+            @Param("nickname") String nickname,
+            @Param("nickname2") String nickname2
+    );
+
+    @Modifying
+    @Query(value = """
+            delete from feed
+            where id IN (select f.id
+                                     from feed f
+                                     join followers f2 on f2.followers_id = f.user_id
+                                     join posts_community pc on pc.community_id = f2.community_id
+                                     where f2.community_id = (select id from community where nickname = :nicknameCommunity) and f2.followers_id = (select id from users_app where nickname = :nickname) and f.name_post = pc.name)
+            """, nativeQuery = true)
+    void delFollowerForCommunity(@Param("nickname") String nickname, @Param("nicknameCommunity") String nicknameCommunity);
+    
 
     @Query(
             value = """
@@ -31,7 +82,70 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     )
     Long[] getFollowers(@Param("nickname") String  nickname);
 
+    @Modifying
+    @Query(
+            value = """
+                 DELETE FROM feed
+                 WHERE id in (
+                 SELECT f.id
+                          FROM feed f
+                          join users_app ua on f.user_id = ua.id
+                          JOIN community c ON c.user_owner_id= ua.id
+                          where c.nickname = :nickname)
+           """, nativeQuery = true
+    )
+    void delFollowersFeed(@Param("nickname") String  nickname);
+
+    @Modifying
+    @Query(
+            value = """
+                 DELETE FROM feed
+                 WHERE id in (
+                 SELECT f.id
+                 FROM Feed f
+                 where f.name_post = :namePost)
+           """, nativeQuery = true
+    )
+    void  delByNamePost(@Param("namePost") String  namePost);
+
+
 
     @Query("SELECT  new com.feeds.NewsFeeds.DTO.Feed.FeedDTO(f.userId, f.namePost) FROM Feed f WHERE f.userId = :id ORDER BY f.createTime DESC")
     List<FeedDTO> findByUserIdOrderByCreateTimeDesc(@Param("id") Long id);
+
+
+    @Query(
+            value = """
+                    SELECT pua.name
+                    FROM  users_app ua
+                    JOIN posts_user_app pua on pua.users_app_id = ua.id
+                    WHERE nickname = :nickname
+            """,
+            nativeQuery = true
+    )
+    String[] findPostByNickname(@Param("nickname") String nickname);
+
+    @Query(
+            value = """
+                    select id
+                    from users_app ua
+                    where  nickname = :nickname
+            """,
+            nativeQuery = true
+    )
+    Long findIDByNickname(@Param("nickname") String nickname);
+
+
+    @Query(value = """
+            select pc.name
+            from posts_community pc
+            join community c on pc.community_id = c.id
+            where  nickname = :nickname
+            """, nativeQuery = true)
+    String[] findPostByNicknameForCommunity(@Param("nickname") String nickname);
+    
+    
+    
+
+
 }

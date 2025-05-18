@@ -10,13 +10,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateFeedDTO {
+public class RequestFeedDTO {
 
-    @NotNull
+
     private String nickname;
-    @NotNull
+
     private String namePost;
-    @NotNull
+
     // 0 - User
     // 1 - Community
     private Integer idAuthor;
