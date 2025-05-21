@@ -13,10 +13,9 @@ import java.util.List;
 public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query(
             value = """
-                 SELECT f.friend_id
+                 select f.friend_id
                           FROM friends f
                           JOIN users_app u ON f.user_id = u.id
-                          left  join feed f2 on f.friend_id  = f2.user_id
                           where u.nickname = :nickname
            """, nativeQuery = true
     )
@@ -27,13 +26,13 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Modifying
     @Query(
             value = """
-                 DELETE FROM feed
-                 WHERE id in(
-                          SELECT f.id
-                          FROM feed f
-                          JOIN friends f2   ON f.user_id = f2.friend_id
-                          join users_app ua on f2.user_id = ua.id
-                          where ua.nickname = :nickname)
+                 delete from feed
+                 where id in(
+                          select f2.id
+                          from friends f
+                          join users_app u ON f.user_id = u.id
+                          join feed f2 on f2.user_id = f.friend_id
+                          where u.nickname = :nickname)
            """, nativeQuery = true
     )
     void delFriendFeed(@Param("nickname") String  nickname);
@@ -42,7 +41,7 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query(value = """
     DELETE FROM feed
     WHERE id IN (
-        select f.id
+         select f.id
          from feed f
          join friends f2 ON f.user_id = f2.friend_id
          join posts_user_app pua on pua.users_app_id = f2.user_id

@@ -1,7 +1,6 @@
 package com.feeds.NewsFeeds.cache;
 
 import com.feeds.NewsFeeds.DTO.Feed.ListFeedDTO;
-import com.feeds.NewsFeeds.entity.Feed;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,6 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration

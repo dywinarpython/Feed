@@ -4,6 +4,7 @@ import com.feeds.NewsFeeds.DTO.Feed.*;
 import com.feeds.NewsFeeds.entity.Feed;
 import com.feeds.NewsFeeds.repository.FeedRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -32,11 +33,7 @@ public class FeedService {
 
 
     @Transactional
-    public void createFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
+    public void createFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed) {
         Cache cache = cacheManager.getCache("LIST_FEED_USER");
         if (cache == null){
             throw new RuntimeException("Кеш не доступен");
@@ -85,18 +82,7 @@ public class FeedService {
     }
 
 
-    @Transactional
-    public void createFeedForAllFriendsOrFollowers(RequestFeedDTO createFeedDTO, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
-        switch (createFeedDTO.getIdAuthor()){
-            case 0 -> addNewFeedFriends(createFeedDTO);
-            case 1 -> addNewFeedFollowers(createFeedDTO);
-            default -> throw new ValidationException("Некоректны данные, а именно IdAuthor");
-        }
-    }
+
 
 
     @Transactional
@@ -109,11 +95,7 @@ public class FeedService {
     }
 
     @Transactional
-    public void deleteFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
+    public void deleteFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed) {
         feedRepository.delFriendFeedAll(requestFriendDTOFeed.getNickname(), requestFriendDTOFeed.getNickname2());
     }
 
@@ -167,32 +149,33 @@ public class FeedService {
         }
     }
 
-    private void createFeed(Long[] ids, RequestFeedDTO requestFeedDTO, Cache cache){
+    private void createFeed(Long[] ids, String namePost, Cache cache){
         for(Long id: ids){
             Feed feed = new Feed();
-            feed.setNamePost(requestFeedDTO.getNamePost());
+            feed.setNamePost(namePost);
             feed.setUserId(id);
             feedRepository.save(feed);
             pushCache(id, cache);
         }
     }
 
-    private void addNewFeedFriends(RequestFeedDTO requestFeedDTO){
-        Long[] idFriends = feedRepository.getFriendsForCreate(requestFeedDTO.getNickname());
+    @Transactional
+    public void addNewFeedFriends(ConsumerRecord<String, String> record){
+        Long[] idFriends = feedRepository.getFriendsForCreate(record.key());
         Cache cache = cacheManager.getCache("LIST_FEED_USER");
         if (cache == null){
             throw new RuntimeException("Кеш не доступен");
         }
-        createFeed(idFriends, requestFeedDTO, cache);
+        createFeed(idFriends, record.value(), cache);
     }
 
-    private void addNewFeedFollowers(RequestFeedDTO requestFeedDTO){
-        Long[] idFollowers = feedRepository.getFollowers(requestFeedDTO.getNickname());
+    public void addNewFeedFollowers(ConsumerRecord<String, String> record){
+        Long[] idFollowers = feedRepository.getFollowers(record.key());
         Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
         if (cache == null){
             throw new RuntimeException("Кеш не доступен");
         }
-        createFeed(idFollowers, requestFeedDTO, cache);
+        createFeed(idFollowers, record.value(), cache);
     }
 
 }
