@@ -1,19 +1,17 @@
-package com.feeds.NewsFeeds.Service;
+package com.feeds.NewsFeeds.service;
 
-import com.feeds.NewsFeeds.DTO.Feed.*;
 import com.feeds.NewsFeeds.entity.Feed;
 import com.feeds.NewsFeeds.repository.FeedRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.example.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 
-import javax.xml.bind.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +30,6 @@ public class FeedService {
     private Integer size;
 
 
-    @Transactional
     public void createFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed) {
         Cache cache = cacheManager.getCache("LIST_FEED_USER");
         if (cache == null){
@@ -61,12 +58,8 @@ public class FeedService {
     }
 
 
-    @Transactional
-    public void createFollowersFeed(RequestFollowersFeedDTO requestFollowersFeedDTO, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
+
+    public void createFollowersFeed(RequestFollowersFeedDTO requestFollowersFeedDTO){
         Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
         List<Feed> feedList = new ArrayList<>();
         String[] requestFeedDTOList = feedRepository.findPostByNicknameForCommunity(requestFollowersFeedDTO.getNickname());
@@ -81,52 +74,47 @@ public class FeedService {
         pushCache(userId, cache);
     }
 
-
-
-
-
-    @Transactional
-    public void deleteFeedForFollower(RequestFollowersFeedDTO requestFollowersFeedDTO, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
+    public void addNewFeedFriends(ConsumerRecord<String, String> record){
+        Long[] idFriends = feedRepository.getFriendsForCreate(record.key());
+        Cache cache = cacheManager.getCache("LIST_FEED_USER");
+        if (cache == null){
+            throw new RuntimeException("Кеш не доступен");
         }
+        createFeed(idFriends, record.value(), cache);
+    }
+
+    public void addNewFeedFollowers(ConsumerRecord<String, String> record){
+        Long[] idFollowers = feedRepository.getFollowers(record.key());
+        Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
+        if (cache == null){
+            throw new RuntimeException("Кеш не доступен");
+        }
+        createFeed(idFollowers, record.value(), cache);
+    }
+
+    public void deleteFeedForFollower(RequestFollowersFeedDTO requestFollowersFeedDTO) {
         feedRepository.delFollowerForCommunity(requestFollowersFeedDTO.getNicknameCommunity(), requestFollowersFeedDTO.getNickname());
     }
 
-    @Transactional
-    public void deleteFeedForFriend(RequestFriendDTOFeed requestFriendDTOFeed) {
-        feedRepository.delFriendFeedAll(requestFriendDTOFeed.getNickname(), requestFriendDTOFeed.getNickname2());
-    }
 
     @Transactional
-    public void deleteFeedForAllFriendsOrFollowersByNamePost(RequestFeedDTO requestFeedDTO, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
-        delByNamePost(requestFeedDTO.getNamePost());
+    public void deleteFeedForFriend(DeleteFriendDTO deleteFriendDTO) {
+        feedRepository.delFriendFeedAll(deleteFriendDTO.getId1(), deleteFriendDTO.getId2());
     }
 
 
-    @Transactional
-    public void deleteFeedForAllFriendsOrFollowersAll(RequestFeedDTO requestFeedDTO, BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            log.error(bindingResult.getAllErrors().toString());
-            throw new ValidationException("Ошибка валидации данных");
-        }
-        switch (requestFeedDTO.getIdAuthor()){
-            case 0 -> delNewFeedFriendsAll(requestFeedDTO.getNickname());
-            case 1 -> delNewFeedFollowersAll(requestFeedDTO.getNickname());
-            default -> throw new ValidationException("Некоректны данные, а именно IdAuthor");
-        }
+    public void deleteFeedForAllFriendsOrFollowersByNamePost(String namePost)  {
+        delByNamePost(namePost);
     }
 
-    private void delNewFeedFollowersAll(String nickname){
+
+
+
+    public void delNewFeedFollowersAll(String nickname){
         feedRepository.delFollowersFeed(nickname);
     }
 
-    private void delNewFeedFriendsAll(String nickname)  {
+    public void delNewFeedFriendsAll(String nickname)  {
         feedRepository.delFriendFeed(nickname);
     }
 
@@ -159,23 +147,8 @@ public class FeedService {
         }
     }
 
-    @Transactional
-    public void addNewFeedFriends(ConsumerRecord<String, String> record){
-        Long[] idFriends = feedRepository.getFriendsForCreate(record.key());
-        Cache cache = cacheManager.getCache("LIST_FEED_USER");
-        if (cache == null){
-            throw new RuntimeException("Кеш не доступен");
-        }
-        createFeed(idFriends, record.value(), cache);
-    }
 
-    public void addNewFeedFollowers(ConsumerRecord<String, String> record){
-        Long[] idFollowers = feedRepository.getFollowers(record.key());
-        Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
-        if (cache == null){
-            throw new RuntimeException("Кеш не доступен");
-        }
-        createFeed(idFollowers, record.value(), cache);
-    }
 
 }
+
+

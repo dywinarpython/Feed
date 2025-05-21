@@ -1,10 +1,13 @@
 package com.feeds.NewsFeeds.handler;
 
 
-import
-import com.feeds.NewsFeeds.Service.FeedService;
+import com.feeds.NewsFeeds.service.FeedService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.example.DeleteFriendDTO;
+import org.example.RequestFeedDTO;
+import org.example.RequestFollowersFeedDTO;
+import org.example.RequestFriendDTOFeed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -21,34 +24,43 @@ public class NewsFeedsHandler {
         feedService.addNewFeedFriends(record);
     }
 
+    @KafkaListener(topics = "news-feed-topic-community")
+    public void createFeedFollowers(ConsumerRecord<String, String> record) {
+        feedService.addNewFeedFollowers(record);
+    }
+
     @KafkaListener(topics = "news-feed-topic-friend")
     public void createFeedFriend(RequestFriendDTOFeed requestFriendDTOFeed){
         feedService.createFeedForFriend(requestFriendDTOFeed);
     }
 
     @KafkaListener(topics = "news-feed-topic-friend-del")
-    public void deleteFeedFriend(RequestFriendDTOFeed requestFriendDTOFeed) {
-        feedService.deleteFeedForFriend(requestFriendDTOFeed);
+    public void deleteFeedFriend(DeleteFriendDTO deleteFriendDTO) {
+        feedService.deleteFeedForFriend(deleteFriendDTO);
     }
 
-//    @PostMapping("/follower")
-//    public ResponseEntity<String> createFollowerFeed(@Valid @RequestBody RequestFollowersFeedDTO requestFollowersFeedDTO, BindingResult result) throws ValidationException {
-//        feedService.createFollowersFeed(requestFollowersFeedDTO, result);
-//        return ResponseEntity.ok("Лента для пользователь обновлена");
-//    }
-//    @DeleteMapping("/follower")
-//    public ResponseEntity<String> deleteFeedFollower(@Valid @RequestBody RequestFollowersFeedDTO requestFollowersFeedDTO, BindingResult result) throws ValidationException {
-//        feedService.deleteFeedForFollower(requestFollowersFeedDTO, result);
-//        return ResponseEntity.ok("Лента для пользователь обновлена");
-//    }
-//    @DeleteMapping("/namePost")
-//    public ResponseEntity<String> deleteByNamePost(@Valid @RequestBody RequestFeedDTO createFeedDTO, BindingResult result) throws ValidationException {
-//        feedService.deleteFeedForAllFriendsOrFollowersByNamePost(createFeedDTO, result);
-//        return ResponseEntity.ok("Лента для пользователь обновлена");
-//    }
-//    @DeleteMapping
-//    public ResponseEntity<String> deleteAll(@Valid @RequestBody RequestFeedDTO requestFeedDTO, BindingResult result) throws ValidationException {
-//        feedService.deleteFeedForAllFriendsOrFollowersAll(requestFeedDTO, result);
-//        return ResponseEntity.ok("Лента для пользователь обновлена");
-//    }
+    @KafkaListener(topics = "news-feed-topic-follower")
+    public void createFollowerFeed(RequestFollowersFeedDTO requestFollowersFeedDTO) {
+        feedService.createFollowersFeed(requestFollowersFeedDTO);
+    }
+    @KafkaListener(topics = "news-feed-topic-follower-del")
+    public void deleteFeedFollower(RequestFollowersFeedDTO requestFollowersFeedDTO) {
+        feedService.deleteFeedForFollower(requestFollowersFeedDTO);
+    }
+
+    @KafkaListener(topics = "news-feed-topic-namePost-del")
+    public void deleteByNamePost(String namePost) {
+        feedService.deleteFeedForAllFriendsOrFollowersByNamePost(namePost);
+    }
+
+    @KafkaListener(topics = "news-feed-topic-user-del")
+    public void deleteUser(String nickname){
+        feedService.delNewFeedFriendsAll(nickname);
+    }
+
+    @KafkaListener(topics = "news-feed-topic-community-del")
+    public void deleteCommunity(String nickname)  {
+        feedService.delNewFeedFollowersAll(nickname);
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.feeds.NewsFeeds.repository;
 
-import com.feeds.NewsFeeds.DTO.Feed.FeedDTO;
+
+
 import com.feeds.NewsFeeds.entity.Feed;
+import org.example.FeedDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -39,24 +41,21 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
 
     @Modifying
     @Query(value = """
-    DELETE FROM feed
-    WHERE id IN (
-         select f.id
-         from feed f
-         join friends f2 ON f.user_id = f2.friend_id
-         join posts_user_app pua on pua.users_app_id = f2.user_id
-            WHERE
-                  ((f2.user_id = (SELECT u.id FROM users_app u WHERE u.nickname = :nickname)
-                  and f2.friend_id = (SELECT u2.id FROM users_app u2 WHERE u2.nickname = :nickname2))
-                  or
-                  (f2.friend_id = (SELECT u3.id FROM users_app u3 WHERE u3.nickname = :nickname)
-                  and f2.user_id = (SELECT u4.id FROM users_app u4 WHERE u4.nickname = :nickname2)))
-                  and pua.name = f.name_post)
-    
-""", nativeQuery = true)
+            delete from feed
+            where id in (
+                select f.id
+                from feed f
+                join users_app ua on ua.id = f.user_id
+                where f.name_post in (
+                    select pua."name"
+                    from posts_user_app pua
+                    where pua.users_app_id in (:id1, :id2)
+                )
+                and f.user_id in (:id1, :id2)
+            )""", nativeQuery = true)
     void delFriendFeedAll(
-            @Param("nickname") String nickname,
-            @Param("nickname2") String nickname2
+            @Param("id1") Long id1,
+            @Param("id2") Long id2
     );
 
     @Modifying
@@ -109,7 +108,7 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
 
 
 
-    @Query("SELECT  new com.feeds.NewsFeeds.DTO.Feed.FeedDTO(f.userId, f.namePost) FROM Feed f WHERE f.userId = :id ORDER BY f.createTime DESC")
+    @Query("SELECT  new org.example.FeedDTO(f.userId, f.namePost) FROM Feed f WHERE f.userId = :id ORDER BY f.createTime DESC")
     List<FeedDTO> findByUserIdOrderByCreateTimeDesc(@Param("id") Long id);
 
 

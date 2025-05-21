@@ -1,6 +1,7 @@
 package com.feeds.NewsFeeds.cache;
 
-import com.feeds.NewsFeeds.DTO.Feed.ListFeedDTO;
+
+import org.example.ListFeedDTO;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
