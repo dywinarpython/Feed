@@ -4,5 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <include file="/db/changelog/changes/v0.0.1-SNAPSHOT/2025-13-05-015-create-table-feed.xml"/>
+    <include file="/db/changelog/changes/v0.0.1-SNAPSHOT/2025-22-05-018-add-on-delete-cascade-feed.xml"/>
 </databaseChangeLog>
     

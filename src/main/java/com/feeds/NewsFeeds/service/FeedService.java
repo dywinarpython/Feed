@@ -60,9 +60,9 @@ public class FeedService {
 
 
     public void createFollowersFeed(RequestFollowersFeedDTO requestFollowersFeedDTO){
-        Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
+        Cache cache = cacheManager.getCache("LIST_FEED_USER");
         List<Feed> feedList = new ArrayList<>();
-        String[] requestFeedDTOList = feedRepository.findPostByNicknameForCommunity(requestFollowersFeedDTO.getNickname());
+        String[] requestFeedDTOList = feedRepository.findPostByNicknameForCommunity(requestFollowersFeedDTO.getNicknameCommunity());
         Long userId = feedRepository.findIDByNickname(requestFollowersFeedDTO.getNickname());
         for (String namePost: requestFeedDTOList){
             Feed feed = new Feed();
@@ -85,15 +85,15 @@ public class FeedService {
 
     public void addNewFeedFollowers(ConsumerRecord<String, String> record){
         Long[] idFollowers = feedRepository.getFollowers(record.key());
-        Cache cache = cacheManager.getCache("LIST_FEED_FOLLOWERS");
+        Cache cache = cacheManager.getCache("LIST_FEED_USER");
         if (cache == null){
             throw new RuntimeException("Кеш не доступен");
         }
         createFeed(idFollowers, record.value(), cache);
     }
-
-    public void deleteFeedForFollower(RequestFollowersFeedDTO requestFollowersFeedDTO) {
-        feedRepository.delFollowerForCommunity(requestFollowersFeedDTO.getNicknameCommunity(), requestFollowersFeedDTO.getNickname());
+    @Transactional
+    public void deleteFeedForFollower(DeleteFollowerDTO deleteFollowerDTO) {
+        feedRepository.delFollowerForCommunity(deleteFollowerDTO.getId(), deleteFollowerDTO.getIdCommunity());
     }
 
 
@@ -102,25 +102,23 @@ public class FeedService {
         feedRepository.delFriendFeedAll(deleteFriendDTO.getId1(), deleteFriendDTO.getId2());
     }
 
-
+    @Transactional
     public void deleteFeedForAllFriendsOrFollowersByNamePost(String namePost)  {
-        delByNamePost(namePost);
+        feedRepository.delByNamePost(namePost);;
     }
 
 
 
-
-    public void delNewFeedFollowersAll(String nickname){
-        feedRepository.delFollowersFeed(nickname);
+    @Transactional
+    public void delNewFeedFollowersAll(){
+        feedRepository.clearFeed();
+    }
+    @Transactional
+    public void delNewFeedFriendsAll()  {
+        feedRepository.clearFeed();
     }
 
-    public void delNewFeedFriendsAll(String nickname)  {
-        feedRepository.delFriendFeed(nickname);
-    }
 
-    private void delByNamePost(String namePost){
-        feedRepository.delByNamePost(namePost);
-    }
 
     private void pushCache(Long id, Cache cache) {
         List<FeedDTO> feedDTOList = feedRepository.findByUserIdOrderByCreateTimeDesc(id);

@@ -1,6 +1,7 @@
 package com.feeds.NewsFeeds;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -20,6 +21,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 public class KafkaConfig {
 
@@ -40,14 +42,32 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(KafkaTemplate<String, Object> kafkaTemplate) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer);
+
+        errorHandler.addNotRetryableExceptions(RuntimeException.class);
+
+        errorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
+            log.error("Ошибка обработки Kafka-сообщения. Попытка: {}", deliveryAttempt);
+            log.error("Topic: {}, Partition: {}, Offset: {}", record.topic(), record.partition(), record.offset());
+            log.error("Key: {}, Value: {}", record.key(), record.value());
+            log.error("Exception: {}", ex.getMessage(), ex);
+        });
+
+        return errorHandler;
+    }
+
+
     // The error handling configuration in this micro-service has not yet been configured, it has been left for updates, while attention is focused on developing basic methods in this microservice
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(ConsumerFactory<String, Object> consumerFactory, KafkaTemplate<String, Object> kafkaTemplate){
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate));
-        errorHandler.addNotRetryableExceptions(RuntimeException.class);
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(ConsumerFactory<String, Object> consumerFactory, DefaultErrorHandler defaultErrorHandler){
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.setCommonErrorHandler(errorHandler);
+        factory.setCommonErrorHandler(defaultErrorHandler);
         factory.setConcurrency(2);
         return factory;
     }

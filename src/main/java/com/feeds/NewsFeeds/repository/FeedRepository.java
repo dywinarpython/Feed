@@ -23,21 +23,28 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     )
     Long[] getFriendsForCreate(@Param("nickname") String  nickname);
 
+    @Query(
+            value = """
+                 SELECT followers_id
+                          FROM followers f
+                          JOIN community c ON f.community_id = c.id
+                          where c.nickname = :nickname
+           """, nativeQuery = true
+    )
+    Long[] getFollowers(@Param("nickname") String  nickname);
+
 
 
     @Modifying
     @Query(
             value = """
                  delete from feed
-                 where id in(
-                          select f2.id
-                          from friends f
-                          join users_app u ON f.user_id = u.id
-                          join feed f2 on f2.user_id = f.friend_id
-                          where u.nickname = :nickname)
+                 where id in(select f.id
+                 from feed f
+                 where f.name_post not in (select pua."name" from posts_user_app pua ) and f.name_post  not in (select pc."name" from posts_community pc))
            """, nativeQuery = true
     )
-    void delFriendFeed(@Param("nickname") String  nickname);
+    void clearFeed();
 
     @Modifying
     @Query(value = """
@@ -62,37 +69,15 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query(value = """
             delete from feed
             where id IN (select f.id
-                                     from feed f
-                                     join followers f2 on f2.followers_id = f.user_id
-                                     join posts_community pc on pc.community_id = f2.community_id
-                                     where f2.community_id = (select id from community where nickname = :nicknameCommunity) and f2.followers_id = (select id from users_app where nickname = :nickname) and f.name_post = pc.name)
-            """, nativeQuery = true)
-    void delFollowerForCommunity(@Param("nickname") String nickname, @Param("nicknameCommunity") String nicknameCommunity);
+                    from feed f
+                    join posts_community pc on pc.community_id = :idCommunity
+                    where f.user_id = :id and pc."name" = f.name_post)""", nativeQuery = true)
+    void delFollowerForCommunity(@Param("id") Long id, @Param("idCommunity") Long idCommunity);
     
 
-    @Query(
-            value = """
-                 SELECT followers_id
-                          FROM followers f
-                          JOIN community c ON f.community_id = c.id
-                          where c.nickname = :nickname
-           """, nativeQuery = true
-    )
-    Long[] getFollowers(@Param("nickname") String  nickname);
 
-    @Modifying
-    @Query(
-            value = """
-                 DELETE FROM feed
-                 WHERE id in (
-                 SELECT f.id
-                          FROM feed f
-                          join users_app ua on f.user_id = ua.id
-                          JOIN community c ON c.user_owner_id= ua.id
-                          where c.nickname = :nickname)
-           """, nativeQuery = true
-    )
-    void delFollowersFeed(@Param("nickname") String  nickname);
+
+
 
     @Modifying
     @Query(
