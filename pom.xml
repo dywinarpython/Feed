@@ -70,9 +70,9 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.example</groupId>
+			<groupId>com.dywinarpython</groupId>
 			<artifactId>FeedDTO</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 

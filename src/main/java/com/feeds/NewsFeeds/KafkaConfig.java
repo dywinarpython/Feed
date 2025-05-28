@@ -31,6 +31,8 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory(){
+        System.out.println("TRUSTED_PACKAGES: " + environment.getProperty("spring.kafka.consumer.properties.spring.json.trusted.packages"));
+        System.out.println("GROUP_ID: " + environment.getProperty("spring.kafka.consumer.group-id"));
         Map<String, Object> config= new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.consumer.bootstrap-servers"));
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
